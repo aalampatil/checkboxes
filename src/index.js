@@ -13,7 +13,7 @@ const io = new Server(server, {
   cors: { origin: "*" }
 });
 
-const TOTAL = 10000;
+const TOTAL = 50000;
 const winningIndex = Math.floor(Math.random() * TOTAL);
 
 let gameOver = false;

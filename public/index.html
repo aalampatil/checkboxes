@@ -1,26 +1,107 @@
 <!doctype html>
+
 <html>
   <head>
-    <title>10000 Boxes - upto 500Rs Discount coupon</title>
+    <title>50,000 Boxes - Win Domino's Coupon 🍕</title>
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <style>
+      body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: #0f172a;
+        color: white;
+        text-align: center;
+      }
+
+      h1 {
+        margin-top: 20px;
+        font-size: 28px;
+      }
+
+      p {
+        color: #94a3b8;
+        margin-bottom: 20px;
+      }
+
+      #grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(22px, 1fr));
+        gap: 4px;
+        max-width: 1000px;
+        margin: auto;
+        padding: 10px;
+      }
+
+      button {
+        aspect-ratio: 1 / 1;
+        border: none;
+        background: #1e293b;
+        color: white;
+        font-size: 10px;
+        cursor: pointer;
+        border-radius: 6px;
+        transition: all 0.15s ease;
+      }
+
+      button:hover {
+        background: #334155;
+        transform: scale(1.05);
+      }
+
+      button:active {
+        transform: scale(0.95);
+      }
+
+      button:disabled {
+        cursor: not-allowed;
+        opacity: 0.85;
+      }
+
+      .miss {
+        background: #ef4444 !important;
+      }
+
+      .win {
+        background: #22c55e !important;
+        font-weight: bold;
+      }
+
+      #status {
+        margin: 10px;
+        font-size: 14px;
+        color: #cbd5f5;
+      }
+    </style>
   </head>
+
   <body>
+    <h1>🎁 Find the Hidden Coupon</h1>
+    <p>50,000 boxes. Only ONE has the reward 👀</p>
+    <div id="status">Connecting...</div>
     <div id="grid"></div>
 
     <script>
-      const socket = io("http://10kboxes.onrender.com");
+      const socket = io("https://50k-boxes.onrender.com");
       const grid = document.getElementById("grid");
+      const statusText = document.getElementById("status");
 
       let boxes = [];
+      let gameOver = false;
+
+      socket.on("connect", () => {
+        statusText.innerText = "🟢 Connected. Start clicking!";
+      });
 
       socket.on("init", (data) => {
         grid.innerHTML = "";
+        boxes = [];
 
         for (let i = 0; i < data.total; i++) {
           const btn = document.createElement("button");
           btn.innerText = "?";
 
           btn.onclick = () => {
+            if (gameOver) return;
             socket.emit("click", i);
           };
 
@@ -28,22 +109,42 @@
           boxes.push(btn);
         }
 
-        // Restore clicked boxes
+        // Restore already clicked
         data.clicked.forEach((i) => {
           boxes[i].innerText = "❌";
+          boxes[i].classList.add("miss");
           boxes[i].disabled = true;
         });
+
+        if (data.gameOver) {
+          gameOver = true;
+          disableAll();
+          statusText.innerText = "❌ Game already finished";
+        }
       });
 
       socket.on("miss", ({ index }) => {
         boxes[index].innerText = "❌";
+        boxes[index].classList.add("miss");
         boxes[index].disabled = true;
       });
 
       socket.on("winner", ({ index, code }) => {
         boxes[index].innerText = "🎉";
-        alert("Winner! Code: " + code);
+        boxes[index].classList.add("win");
+
+        gameOver = true;
+        disableAll();
+
+        statusText.innerText = "🏆 We have a winner!";
+        setTimeout(() => {
+          alert("🎉 Winner found!\nCoupon: " + code);
+        }, 100);
       });
+
+      function disableAll() {
+        boxes.forEach((b) => (b.disabled = true));
+      }
     </script>
   </body>
 </html>
