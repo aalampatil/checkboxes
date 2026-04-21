@@ -1,0 +1,49 @@
+<!doctype html>
+<html>
+  <head>
+    <title>10000 Boxes - upto 500Rs Discount coupon</title>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  </head>
+  <body>
+    <div id="grid"></div>
+
+    <script>
+      const socket = io("http://10kboxes.onrender.com");
+      const grid = document.getElementById("grid");
+
+      let boxes = [];
+
+      socket.on("init", (data) => {
+        grid.innerHTML = "";
+
+        for (let i = 0; i < data.total; i++) {
+          const btn = document.createElement("button");
+          btn.innerText = "?";
+
+          btn.onclick = () => {
+            socket.emit("click", i);
+          };
+
+          grid.appendChild(btn);
+          boxes.push(btn);
+        }
+
+        // Restore clicked boxes
+        data.clicked.forEach((i) => {
+          boxes[i].innerText = "❌";
+          boxes[i].disabled = true;
+        });
+      });
+
+      socket.on("miss", ({ index }) => {
+        boxes[index].innerText = "❌";
+        boxes[index].disabled = true;
+      });
+
+      socket.on("winner", ({ index, code }) => {
+        boxes[index].innerText = "🎉";
+        alert("Winner! Code: " + code);
+      });
+    </script>
+  </body>
+</html>
