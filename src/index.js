@@ -25,6 +25,8 @@ function createApp() {
     socket.on("client:checkbox:change", (data) => {
       console.log(`socket-${socket.id}:client:checkbox:change`, data)
       io.emit("server:checkbox:change", data)
+      //saving state
+      state.checkboxes[data.index] = data.checked
     })
   })
 
@@ -35,6 +37,8 @@ function createApp() {
   app.get("/health", (req, res) => {
     res.send("System Status - GOOD")
   })
+
+  //fetching state
   app.get("/checkboxes-state", (req, res) => {
     return res.status(200).json({ checkboxes: state.checkboxes })
   })
