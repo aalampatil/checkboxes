@@ -6,9 +6,28 @@ import express from "express";
 import { Server } from "socket.io"
 import { publisher, subscriber, redis } from "../redis-connection.js";
 import { channel } from "node:diagnostics_channel";
+import { stat } from "node:fs";
 
 const checkbox_size = 20;
 const checkbox_state_key = "checkbox-state"
+
+const setCheckBoxState = async (state) => {
+  return await redis.set(checkbox_state_key, JSON.stringify(state))
+}
+
+const getCheckBoxState = async () => {
+  const data = await redis.get(checkbox_state_key)
+  return data ? JSON.parse(data) : null
+}
+
+const getOrCreateState = async () => {
+  let state = await getCheckBoxState()
+  if (!state) {
+    state = new Array(checkbox_size).fill(false)
+    setCheckBoxState(state)
+  }
+  return state
+}
 
 async function createApp() {
   const port = process.env.PORT;
@@ -31,17 +50,9 @@ async function createApp() {
     console.log("socket connected", socket.id)
     socket.on("client:checkbox:change", async (data) => {
       console.log(`socket-${socket.id}:client:checkbox:change`, data)
-      // io.emit("server:checkbox:change", data)
-      // //saving state
-      // state.checkboxes[data.index] = data.checked
-      const existingState = await redis.get(checkbox_state_key)
-      if (existingState) {
-        const remoteData = JSON.parse(existingState);
-        remoteData[data.index] = data.checked
-        await redis.set(checkbox_state_key, JSON.stringify(remoteData))
-      } else {
-        await redis.set(checkbox_state_key, JSON.stringify(new Array(checkbox_size).fill(false)))
-      }
+      const state = await getOrCreateState()
+      state[data.index] = data.checked;
+      await setCheckBoxState(state)
       await publisher.publish("internal-server:checkbox:change", JSON.stringify(data))
     })
   })
@@ -56,12 +67,8 @@ async function createApp() {
 
   //fetching state
   app.get("/checkboxes-state", async (req, res) => {
-    const existingState = await redis.get(checkbox_state_key)
-    if (existingState) {
-      const remoteData = JSON.parse(existingState)
-      return res.json({ checkboxes: remoteData })
-    }
-    return res.json({ checkboxes: new Array(checkbox_size).fill(false) })
+    const state = await getOrCreateState();
+    return res.json({ checkboxes: state });
   })
 
   server.listen(port, () => {
