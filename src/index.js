@@ -52,7 +52,8 @@ async function createApp() {
     console.log("socket connected", socket.id)
     socket.on("client:checkbox:change", async (data) => {
       console.log(`socket-${socket.id}:client:checkbox:change`, data)
-      const lastOperationTime = rateLimitingHashMap.get(socket.id)
+      // const lastOperationTime = rateLimitingHashMap.get(socket.id)
+      const lastOperationTime = await redis.get((`rate-limiting:${socket.id}`))
       if (lastOperationTime) {
         const timePassed = Date.now() - lastOperationTime;
         const cooldown = 5.5 * 1000
@@ -65,7 +66,8 @@ async function createApp() {
           return;
         }
       }
-      rateLimitingHashMap.set(socket.id, Date.now())
+      // rateLimitingHashMap.set(socket.id, Date.now())
+      await redis.set(`rate-limiting:${socket.id}`, Date.now())
 
       const state = await getOrCreateState()
       state[data.index] = data.checked;
