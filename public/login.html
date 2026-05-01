@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>M-checkboxes</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      :root {
+        --bg: #0e0e0e;
+        --surface: #161616;
+        --border: #2a2a2a;
+        --accent: #d4ff00;
+        --accent-dim: #a8cc00;
+        --text: #f0f0f0;
+        --muted: #666;
+      }
+
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: "DM Mono", monospace;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        padding: 2rem;
+        position: relative;
+        overflow: hidden;
+      }
+
+      /* grid background */
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background-image:
+          linear-gradient(var(--border) 1px, transparent 1px),
+          linear-gradient(90deg, var(--border) 1px, transparent 1px);
+        background-size: 48px 48px;
+        opacity: 0.4;
+        pointer-events: none;
+      }
+
+      .card {
+        position: relative;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        padding: 3rem 2.5rem;
+        width: 100%;
+        max-width: 420px;
+        animation: fadeUp 0.5s ease both;
+      }
+
+      /* accent corner */
+      .card::before {
+        content: "";
+        position: absolute;
+        top: -1px;
+        left: -1px;
+        width: 48px;
+        height: 4px;
+        background: var(--accent);
+      }
+      .card::after {
+        content: "";
+        position: absolute;
+        top: -1px;
+        left: -1px;
+        width: 4px;
+        height: 48px;
+        background: var(--accent);
+      }
+
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.65rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--accent);
+        margin-bottom: 1.5rem;
+      }
+
+      .badge-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--accent);
+        animation: pulse 2s ease infinite;
+      }
+
+      h1 {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: 3.5rem;
+        line-height: 1;
+        letter-spacing: 0.02em;
+        margin-bottom: 0.5rem;
+      }
+
+      h1 span {
+        color: var(--accent);
+      }
+
+      .subtitle {
+        font-size: 0.72rem;
+        color: var(--muted);
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        margin-bottom: 2.5rem;
+        line-height: 1.6;
+      }
+
+      .divider {
+        border: none;
+        border-top: 1px solid var(--border);
+        margin-bottom: 2rem;
+      }
+
+      .btn {
+        width: 100%;
+        padding: 0.9rem 1.5rem;
+        background: var(--accent);
+        color: #0e0e0e;
+        border: none;
+        font-family: "DM Mono", monospace;
+        font-size: 0.8rem;
+        font-weight: 500;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        transition:
+          background 0.15s,
+          transform 0.1s;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .btn:hover {
+        background: var(--accent-dim);
+      }
+      .btn:active {
+        transform: scale(0.98);
+      }
+
+      .btn-icon {
+        width: 16px;
+        height: 16px;
+        border: 2px solid #0e0e0e;
+        border-radius: 2px;
+        display: grid;
+        place-items: center;
+        flex-shrink: 0;
+      }
+
+      .btn-icon::after {
+        content: "";
+        width: 6px;
+        height: 6px;
+        background: #0e0e0e;
+        border-radius: 1px;
+      }
+
+      .footer-note {
+        margin-top: 1.5rem;
+        font-size: 0.65rem;
+        color: var(--muted);
+        text-align: center;
+        letter-spacing: 0.04em;
+        line-height: 1.8;
+      }
+
+      .footer-note a {
+        color: var(--accent);
+        text-decoration: none;
+      }
+
+      .scopes {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        margin-bottom: 2rem;
+      }
+
+      .scope-tag {
+        font-size: 0.6rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        padding: 3px 8px;
+        border: 1px solid var(--border);
+        color: var(--muted);
+      }
+
+      @keyframes fadeUp {
+        from {
+          opacity: 0;
+          transform: translateY(16px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.3;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <div class="badge">
+        <span class="badge-dot"></span>
+        OAuth 2.0 / OIDC
+      </div>
+
+      <h1>M-Check<span>boxes</span></h1>
+      <p class="subtitle">
+        Sign in using your identity provider<br />to continue to the
+        application.
+      </p>
+
+      <hr class="divider" />
+
+      <div class="scopes">
+        <span class="scope-tag">openid</span>
+        <span class="scope-tag">email</span>
+        <span class="scope-tag">profile</span>
+      </div>
+
+      <button class="btn">
+        <span class="btn-icon"></span>
+        Continue with OIDC-ap
+      </button>
+
+      <p class="footer-note">
+        By continuing you agree to the <a href="#">terms of service</a>.<br />
+        Your credentials are never shared with this app.
+      </p>
+    </div>
+
+    <script>
+      const CLIENT_ID = "7c6cd7d4167c0863dca03937d95720c4";
+      const REDIRECT_URI = "http://localhost:8000/callback";
+      const OIDC_BASE = "http://localhost:3000";
+      console.log(CLIENT_ID, REDIRECT_URI, OIDC_BASE);
+
+      document.querySelector(".btn").addEventListener("click", () => {
+        const params = new URLSearchParams({
+          client_id: CLIENT_ID,
+          redirect_uri: REDIRECT_URI,
+          response_type: "code",
+          // scope: "openid email profile",
+          // state: crypto.randomUUID(),
+        });
+        console.log(params);
+        console.log(`${OIDC_BASE}/o/3rd-party-client/authorize?${params}`);
+
+        window.location.href = `${OIDC_BASE}/o/3rd-party-client/authorize?${params}`;
+      });
+    </script>
+  </body>
+</html>

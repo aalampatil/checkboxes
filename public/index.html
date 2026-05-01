@@ -3,75 +3,454 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Checkboxes</title>
+    <title>M-Checkboxes</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
     <style>
-      .checkbox {
-        height: 25px;
-        width: 25px;
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
       }
 
+      :root {
+        --bg: #0e0e0e;
+        --surface: #161616;
+        --border: #2a2a2a;
+        --accent: #d4ff00;
+        --accent-dim: #a8cc00;
+        --text: #f0f0f0;
+        --muted: #666;
+        --error: #ff4444;
+        --readonly-bg: #1a1600;
+        --readonly-border: #4a3f00;
+      }
+
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: "DM Mono", monospace;
+        min-height: 100vh;
+        padding: 2rem;
+        position: relative;
+        overflow-x: hidden;
+      }
+
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background-image:
+          linear-gradient(var(--border) 1px, transparent 1px),
+          linear-gradient(90deg, var(--border) 1px, transparent 1px);
+        background-size: 48px 48px;
+        opacity: 0.4;
+        pointer-events: none;
+        z-index: 0;
+      }
+
+      .layout {
+        position: relative;
+        z-index: 1;
+        max-width: 900px;
+        margin: 0 auto;
+      }
+
+      /* ── top bar ── */
+      #user-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border: 1px solid var(--border);
+        background: var(--surface);
+        padding: 0.6rem 1.2rem;
+        margin-bottom: 2rem;
+        animation: fadeDown 0.4s ease both;
+      }
+
+      #user-label {
+        font-size: 0.7rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+
+      #user-label span {
+        color: var(--accent);
+      }
+
+      #logout-btn {
+        font-family: "DM Mono", monospace;
+        font-size: 0.65rem;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--bg);
+        background: var(--accent);
+        border: none;
+        padding: 0.35rem 0.9rem;
+        text-decoration: none;
+        cursor: pointer;
+        transition: background 0.15s;
+      }
+
+      #logout-btn:hover {
+        background: var(--accent-dim);
+      }
+
+      /* ── readonly banner ── */
+      #readonly-banner {
+        display: none;
+        border: 1px solid var(--readonly-border);
+        background: var(--readonly-bg);
+        padding: 0.7rem 1.2rem;
+        margin-bottom: 1.5rem;
+        font-size: 0.7rem;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--accent-dim);
+        animation: fadeDown 0.4s ease both;
+      }
+
+      #readonly-banner a {
+        color: var(--accent);
+        text-decoration: none;
+        border-bottom: 1px solid var(--accent);
+      }
+
+      /* ── heading ── */
+      .heading-block {
+        margin-bottom: 2rem;
+        animation: fadeUp 0.5s ease both 0.1s;
+      }
+
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.65rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--accent);
+        margin-bottom: 0.75rem;
+      }
+
+      .badge-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--accent);
+        animation: pulse 2s ease infinite;
+      }
+
+      h1 {
+        font-family: "Bebas Neue", sans-serif;
+        font-size: clamp(3rem, 8vw, 5rem);
+        line-height: 1;
+        letter-spacing: 0.02em;
+      }
+
+      h1 span {
+        color: var(--accent);
+      }
+
+      .subtitle {
+        font-size: 0.7rem;
+        color: var(--muted);
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        margin-top: 0.4rem;
+      }
+
+      /* ── error ── */
       #error {
-        color: red;
-        margin-bottom: 10px;
-        font-weight: bold;
+        min-height: 1.5rem;
+        font-size: 0.7rem;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--error);
+        margin-bottom: 1rem;
+        padding: 0 0.2rem;
+      }
+
+      /* ── card ── */
+      .card {
+        position: relative;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        padding: 2rem;
+        animation: fadeUp 0.5s ease both 0.2s;
+      }
+
+      .card::before {
+        content: "";
+        position: absolute;
+        top: -1px;
+        left: -1px;
+        width: 48px;
+        height: 4px;
+        background: var(--accent);
+      }
+
+      .card::after {
+        content: "";
+        position: absolute;
+        top: -1px;
+        left: -1px;
+        width: 4px;
+        height: 48px;
+        background: var(--accent);
+      }
+
+      .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .card-title {
+        font-size: 0.65rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+
+      .card-count {
+        font-size: 0.65rem;
+        letter-spacing: 0.08em;
+        color: var(--muted);
+      }
+
+      .card-count span {
+        color: var(--accent);
+      }
+
+      /* ── checkbox grid ── */
+      #container {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(36px, 1fr));
+        gap: 8px;
+      }
+
+      .checkbox-wrap {
+        position: relative;
+        aspect-ratio: 1;
+      }
+
+      .checkbox-wrap input[type="checkbox"] {
+        appearance: none;
+        -webkit-appearance: none;
+        width: 100%;
+        height: 100%;
+        border: 1px solid var(--border);
+        background: var(--bg);
+        cursor: pointer;
+        transition:
+          border-color 0.1s,
+          background 0.15s;
+      }
+
+      .checkbox-wrap input[type="checkbox"]:not(:disabled):hover {
+        border-color: var(--accent);
+      }
+
+      .checkbox-wrap input[type="checkbox"]:checked {
+        background: var(--accent);
+        border-color: var(--accent);
+      }
+
+      .checkbox-wrap input[type="checkbox"]:disabled {
+        cursor: not-allowed;
+        opacity: 0.4;
+      }
+
+      .checkbox-wrap .idx {
+        position: absolute;
+        bottom: 2px;
+        right: 3px;
+        font-size: 0.45rem;
+        color: var(--muted);
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.15s;
+        line-height: 1;
+      }
+
+      .checkbox-wrap:hover .idx {
+        opacity: 1;
+      }
+
+      /* ── footer ── */
+      .footer {
+        margin-top: 1.5rem;
+        font-size: 0.6rem;
+        color: var(--muted);
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        text-align: center;
+        animation: fadeUp 0.5s ease both 0.3s;
+      }
+
+      @keyframes fadeUp {
+        from {
+          opacity: 0;
+          transform: translateY(16px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes fadeDown {
+        from {
+          opacity: 0;
+          transform: translateY(-8px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.3;
+        }
       }
     </style>
   </head>
   <body>
-    <h1>Sockets and Rate Limiting</h1>
-    <div id="error"></div>
-    <div id="container"></div>
+    <div class="layout">
+      <div id="user-bar">
+        <span id="user-label">Loading...</span>
+        <a href="/logout" id="logout-btn" style="display: none">Logout</a>
+      </div>
+
+      <div id="readonly-banner">
+        ◎ Read-only mode — <a href="/login.html">Login</a> to interact
+      </div>
+
+      <div class="heading-block">
+        <div class="badge">
+          <span class="badge-dot"></span>
+          Live · WebSocket
+        </div>
+        <h1>M-Check<span>boxes</span></h1>
+        <p class="subtitle">Shared state · Real-time · Rate limited</p>
+      </div>
+
+      <div id="error"></div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Checkbox Grid</span>
+          <span class="card-count" id="checked-count">— / — checked</span>
+        </div>
+        <div id="container"></div>
+      </div>
+
+      <p class="footer">
+        Updates broadcast via Redis Pub/Sub &nbsp;·&nbsp; 5s cooldown per
+        session
+      </p>
+    </div>
+
     <script src="/socket.io/socket.io.js"></script>
     <script>
       const socket = io();
+      const errorDiv = document.getElementById("error");
+      const userLabel = document.getElementById("user-label");
+      const logoutBtn = document.getElementById("logout-btn");
+      const readonlyBanner = document.getElementById("readonly-banner");
+      const container = document.getElementById("container");
+      const checkedCount = document.getElementById("checked-count");
 
-      const errorDiv = document.getElementById("error"); // ✅ handle and display error
+      let isLoggedIn = false;
 
       socket.on("server:error", (data) => {
-        const errorMessage = data.error || "Something went wrong";
-        errorDiv.textContent = errorMessage;
-        setTimeout(() => {
-          errorDiv.textContent = "";
-        }, 3000);
+        errorDiv.textContent = "⚠ " + (data.error || "Something went wrong");
+        setTimeout(() => (errorDiv.textContent = ""), 3000);
       });
 
-      socket.on("server:checkbox:change", (data) => {
-        console.log("server:checkbox:change", data);
-        const { index, checked } = data;
+      socket.on("server:checkbox:change", ({ index, checked }) => {
         const input = document.getElementById(`checkbox-${index}`);
-        if (input) input.checked = checked;
+        if (input) {
+          input.checked = checked;
+          updateCount();
+        }
       });
 
-      const container = document.getElementById("container");
-      const checkboxCount = 10;
-
-      async function fetchStateFromServer() {
-        while (container.firstChild) {
-          container.removeChild(container.firstChild);
-        }
-        const response = await fetch("/checkboxes-state", { method: "GET" });
-        const data = await response.json();
-        console.log(data);
-        if (data && data.checkboxes) {
-          data.checkboxes.forEach((serverValue, index) => {
-            const input = document.createElement("input");
-            input.type = "checkbox";
-            input.id = `checkbox-${index}`;
-            input.className = "checkbox";
-            input.checked = serverValue;
-            input.addEventListener("change", (e) => {
-              const checked = e.target.checked;
-              socket.emit("client:checkbox:change", { index, checked });
-              fetchStateFromServer();
-            });
-            container.appendChild(input);
-          });
-        }
+      function updateCount() {
+        const all = container.querySelectorAll("input[type=checkbox]");
+        const checked = container.querySelectorAll(
+          "input[type=checkbox]:checked",
+        );
+        checkedCount.innerHTML = `<span>${checked.length}</span> / ${all.length} checked`;
       }
 
-      window.addEventListener("load", async () => {
-        fetchStateFromServer();
-      });
+      async function fetchStateFromServer() {
+        while (container.firstChild)
+          container.removeChild(container.firstChild);
+
+        const res = await fetch("/checkboxes-state");
+        const data = await res.json();
+
+        if (data.user) {
+          isLoggedIn = true;
+          userLabel.innerHTML = `Logged in as <span>${data.user.given_name} (${data.user.email})</span>`;
+          logoutBtn.style.display = "inline";
+          readonlyBanner.style.display = "none";
+        } else {
+          isLoggedIn = false;
+          userLabel.textContent = "Not logged in";
+          readonlyBanner.style.display = "block";
+        }
+
+        data.checkboxes.forEach((serverValue, index) => {
+          const wrap = document.createElement("div");
+          wrap.className = "checkbox-wrap";
+
+          const input = document.createElement("input");
+          input.type = "checkbox";
+          input.id = `checkbox-${index}`;
+          input.checked = serverValue;
+          input.disabled = !isLoggedIn;
+
+          input.addEventListener("change", (e) => {
+            if (!isLoggedIn) return;
+            socket.emit("client:checkbox:change", {
+              index,
+              checked: e.target.checked,
+            });
+            updateCount();
+          });
+
+          const idx = document.createElement("span");
+          idx.className = "idx";
+          idx.textContent = index;
+
+          wrap.appendChild(input);
+          wrap.appendChild(idx);
+          container.appendChild(wrap);
+        });
+
+        updateCount();
+      }
+
+      window.addEventListener("load", fetchStateFromServer);
     </script>
   </body>
 </html>
